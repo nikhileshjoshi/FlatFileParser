@@ -1,12 +1,12 @@
 package main
 
 import (
+	_ "errors"
 	"fmt"
 	"io/ioutil"
 	"reflect"
 	"strconv"
 	"strings"
-	_"errors"
 )
 
 type Pairs struct {
@@ -23,46 +23,49 @@ type configStruct struct {
 
 func main() {
 	//createConfigStruct("test.gofig")
-	p := Pairs{}
-
-	t := reflect.TypeOf(p)
-	ps := reflect.ValueOf(&p)
-	v := ps.Elem()
+	//var parsed []Pairs
 
 	bs, err := ioutil.ReadFile("read.txt")
 	if err != nil {
 		panic(err)
 	}
-	arr := strings.Split(string(bs), "\n")
+	/*arr := strings.Split(string(bs), "\n")
 
-	for _, s := range arr{
+	for _, s := range arr {
 		if strings.TrimSpace(s) != "" {
+
+			p := Pairs{}
+
+			t := reflect.TypeOf(p)
+			ps := reflect.ValueOf(&p)
+			v := ps.Elem()
+
 			for i := 0; i < v.NumField(); i++ {
 				fv := v.Field(i)
 				//ft := t.Field(i)
 				x, y, err := getLoc(t.Field(i))
-				if err != nil{
+				if err != nil {
 					panic(err)
 				}
 				setValue(&fv, s[x:y])
 			}
+			fmt.Println(p)
 		}
 
-	}
-	fmt.Println(p)
-
+	}*/
+	fmt.Println(Decode(string(bs), new(Pairs)))
 
 }
 
-func getLoc(sf reflect.StructField) (int, int, error){
+func getLoc(sf reflect.StructField) (int, int, error) {
 	arr := strings.Split(sf.Tag.Get("loc"), ",")
-	if len(arr)==2{
+	if len(arr) == 2 {
 		x, _ := strconv.Atoi(arr[0])
 		y, _ := strconv.Atoi(arr[1])
-		return x,y, nil
-	}else{
+		return x, y, nil
+	} else {
 		//str := "location (Tag) format for " + sf.Name + //", tag:" + sf.Tag + " is wrong."
-		return 0, 0, nil//errors.New(str)
+		return 0, 0, nil //errors.New(str)
 	}
 }
 
@@ -86,22 +89,42 @@ func setValue(t *reflect.Value, value string) {
 	}
 }
 
-func DecodeFile(filePath string, i interface{}, config []configStruct) {
+func DecodeFile(filePath string, i interface{}) {
 	bs, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		panic(err)
 	}
-	Decode(string(bs), i, config)
+	Decode(string(bs), i)
 
 	//ioutil.ReadAll(strings.NewReader(string(bs)))
 }
 
-func Decode(s string, i interface{}, config []configStruct) {
-	//json.Unmarshal()
+func Decode(s string, i interface{}) []interface{} {
 	arr := strings.Split(s, "\n")
+	interfaceType := reflect.ValueOf(i).Type()
+
+	interfaceSlice := reflect.MakeSlice(reflect.SliceOf(interfaceType), 0, 0)
 	for _, a := range arr {
-		fmt.Println(a)
+		if strings.TrimSpace(a) != "" {
+			interfaceValue := reflect.New(interfaceType)
+			t := reflect.TypeOf(i)
+			//v := reflect.ValueOf(interfaceValue)
+			v := interfaceValue
+
+			for i := 0; i < v.NumField(); i++ {
+				fv := v.Field(i)
+				//ft := t.Field(i)
+				x, y, err := getLoc(t.Field(i))
+				if err != nil {
+					panic(err)
+				}
+				setValue(&fv, s[x:y])
+			}
+			//fmt.Println(a)
+			interfaceSlice = reflect.AppendSlice(interfaceSlice, interfaceValue.Elem())
+		}
 	}
+	return interfaceSlice.Interface().([]interface{})
 }
 
 func createConfigStruct(fileName string) []configStruct {
