@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-type Pairs struct {
+type Pair struct {
 	Id   int    `loc:"0,3"`
 	Name string `loc:"3,6"`
 }
@@ -53,7 +53,10 @@ func main() {
 		}
 
 	}*/
-	fmt.Println(Decode(string(bs), new(Pairs)))
+	//var p Pair[]
+	i := Decode(string(bs), new(Pair))
+	p := i.([]Pair)
+	fmt.Println(p, p[0].Name, p[0].Id)
 
 }
 
@@ -95,21 +98,20 @@ func DecodeFile(filePath string, i interface{}) {
 		panic(err)
 	}
 	Decode(string(bs), i)
-
+	//json.Unmarshal()
 	//ioutil.ReadAll(strings.NewReader(string(bs)))
 }
 
-func Decode(s string, i interface{}) []interface{} {
+func Decode(s string, i interface{}) interface{} {
 	arr := strings.Split(s, "\n")
-	interfaceType := reflect.ValueOf(i).Type()
-
-	interfaceSlice := reflect.MakeSlice(reflect.SliceOf(interfaceType), 0, 0)
+	//interfaceType := reflect.ValueOf(i).Type()
+	t := reflect.TypeOf(i).Elem()
+	interfaceSlice := reflect.MakeSlice(reflect.SliceOf(t), 0, 0)
 	for _, a := range arr {
 		if strings.TrimSpace(a) != "" {
-			interfaceValue := reflect.New(interfaceType)
-			t := reflect.TypeOf(i)
+
 			//v := reflect.ValueOf(interfaceValue)
-			v := interfaceValue
+			v := reflect.New(t).Elem()
 
 			for i := 0; i < v.NumField(); i++ {
 				fv := v.Field(i)
@@ -121,10 +123,11 @@ func Decode(s string, i interface{}) []interface{} {
 				setValue(&fv, s[x:y])
 			}
 			//fmt.Println(a)
-			interfaceSlice = reflect.AppendSlice(interfaceSlice, interfaceValue.Elem())
+			interfaceSlice = reflect.Append(interfaceSlice, v)
 		}
 	}
-	return interfaceSlice.Interface().([]interface{})
+	fmt.Println(interfaceSlice.Type(), interfaceSlice.Kind())
+	return interfaceSlice.Interface()
 }
 
 func createConfigStruct(fileName string) []configStruct {
