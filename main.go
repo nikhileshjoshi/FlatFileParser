@@ -53,11 +53,28 @@ func main() {
 		}
 
 	}*/
-	//var p Pair[]
-	i := Decode(string(bs), new(Pair))
-	p := i.([]Pair)
-	fmt.Println(p, p[0].Name, p[0].Id)
+	var p []Pair
+	Decode(string(bs), &p)
+	//p := i.([]Pair)
+	fmt.Println(p, p[0], p[0].Id)
 
+}
+
+// An InvalidUnmarshalError describes an invalid argument passed to Unmarshal.
+// (The argument to Unmarshal must be a non-nil pointer.)
+type InvalidUnmarshalError struct {
+	Type reflect.Type
+}
+
+func (e *InvalidUnmarshalError) Error() string {
+	if e.Type == nil {
+		return "FlatFile: Unmarshal(nil)"
+	}
+
+	if e.Type.Kind() != reflect.Ptr {
+		return "FlatFile: Unmarshal(non-pointer " + e.Type.String() + ")"
+	}
+	return "FlatFile: Unmarshal(nil " + e.Type.String() + ")"
 }
 
 func getLoc(sf reflect.StructField) (int, int, error) {
@@ -102,18 +119,22 @@ func DecodeFile(filePath string, i interface{}) {
 	//ioutil.ReadAll(strings.NewReader(string(bs)))
 }
 
-func Decode(s string, i interface{}) interface{} {
+func Decode(s string, i interface{}) error{
 	arr := strings.Split(s, "\n")
-	//interfaceType := reflect.ValueOf(i).Type()
-	t := reflect.TypeOf(i).Elem()
-	interfaceSlice := reflect.MakeSlice(reflect.SliceOf(t), 0, 0)
+	interfacePtrValue := reflect.ValueOf(i)
+	if interfacePtrValue.Kind() != reflect.Ptr || interfacePtrValue.IsNil() {
+		return &InvalidUnmarshalError{reflect.TypeOf(i)}
+	}
+	t := reflect.TypeOf(i).Elem().Elem()
+
+	//interfaceSlice := reflect.MakeSlice(reflect.SliceOf(t), 0, 0)
 	for _, a := range arr {
 		if strings.TrimSpace(a) != "" {
 
 			//v := reflect.ValueOf(interfaceValue)
 			v := reflect.New(t).Elem()
 
-			for i := 0; i < v.NumField(); i++ {
+			for i := 0; i < t.NumField(); i++ {
 				fv := v.Field(i)
 				//ft := t.Field(i)
 				x, y, err := getLoc(t.Field(i))
@@ -123,11 +144,13 @@ func Decode(s string, i interface{}) interface{} {
 				setValue(&fv, s[x:y])
 			}
 			//fmt.Println(a)
-			interfaceSlice = reflect.Append(interfaceSlice, v)
+			//interfaceSlice = reflect.Append(interfaceSlice, v)
+			i = append(i.([]interface{}),v.Interface())
 		}
 	}
-	fmt.Println(interfaceSlice.Type(), interfaceSlice.Kind())
-	return interfaceSlice.Interface()
+	fmt.Println(i)
+	//return interfaceSlice.Interface()
+	return nil
 }
 
 func createConfigStruct(fileName string) []configStruct {
