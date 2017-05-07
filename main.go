@@ -56,7 +56,7 @@ func main() {
 	var p []Pair
 	Decode(string(bs), &p)
 	//p := i.([]Pair)
-	fmt.Println(p, p[0], p[0].Id)
+	fmt.Println(p)
 
 }
 
@@ -126,7 +126,7 @@ func Decode(s string, i interface{}) error{
 		return &InvalidUnmarshalError{reflect.TypeOf(i)}
 	}
 	t := reflect.TypeOf(i).Elem().Elem()
-
+	interfaceSlice := interfacePtrValue.Elem()
 	//interfaceSlice := reflect.MakeSlice(reflect.SliceOf(t), 0, 0)
 	for _, a := range arr {
 		if strings.TrimSpace(a) != "" {
@@ -141,15 +141,15 @@ func Decode(s string, i interface{}) error{
 				if err != nil {
 					panic(err)
 				}
-				setValue(&fv, s[x:y])
+				setValue(&fv, a[x:y])
 			}
 			//fmt.Println(a)
-			//interfaceSlice = reflect.Append(interfaceSlice, v)
-			i = append(i.([]interface{}),v.Interface())
+			interfaceSlice = reflect.Append(interfaceSlice, v)
 		}
 	}
-	fmt.Println(i)
-	//return interfaceSlice.Interface()
+	//i = interfaceSlice.Interface()
+	fmt.Println(i, interfaceSlice)
+	interfacePtrValue.Elem().Set(interfaceSlice)
 	return nil
 }
 
