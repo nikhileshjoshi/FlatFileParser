@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"errors"
+	"io/ioutil"
 )
 
 func Decode(s string, i interface{}) error {
@@ -124,4 +125,14 @@ func setValue(t *reflect.Value, value string) {
 		b, _ := strconv.ParseBool(value)
 		t.SetBool(b)
 	}
+}
+
+func DecodeFile(filePath string, i interface{}) {
+	bs, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		panic(err)
+	}
+	Decode(string(bs), i)
+	//json.Unmarshal()
+	//ioutil.ReadAll(strings.NewReader(string(bs)))
 }
