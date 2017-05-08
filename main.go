@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"github.com/nikhileshjoshi/FlatFileParser/flatFileParser"
 )
 
 type Pair struct {
@@ -22,39 +23,15 @@ type configStruct struct {
 }
 
 func main() {
-	//createConfigStruct("test.gofig")
-	//var parsed []Pairs
 
 	bs, err := ioutil.ReadFile("read.txt")
 	if err != nil {
 		panic(err)
 	}
-	/*arr := strings.Split(string(bs), "\n")
 
-	for _, s := range arr {
-		if strings.TrimSpace(s) != "" {
-
-			p := Pairs{}
-
-			t := reflect.TypeOf(p)
-			ps := reflect.ValueOf(&p)
-			v := ps.Elem()
-
-			for i := 0; i < v.NumField(); i++ {
-				fv := v.Field(i)
-				//ft := t.Field(i)
-				x, y, err := getLoc(t.Field(i))
-				if err != nil {
-					panic(err)
-				}
-				setValue(&fv, s[x:y])
-			}
-			fmt.Println(p)
-		}
-
-	}*/
 	var p []Pair
-	Decode(string(bs), &p)
+	flatFileParser.Decode(string(bs), &p)
+	//Decode(string(bs), &p)
 	//p := i.([]Pair)
 	fmt.Println(p)
 
