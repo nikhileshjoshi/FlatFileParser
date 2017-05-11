@@ -1,12 +1,12 @@
 package flatFileParser
 
 import (
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"reflect"
 	"strconv"
 	"strings"
-	"errors"
-	"io/ioutil"
 )
 
 func Decode(s string, i interface{}) error {
@@ -38,38 +38,9 @@ func Decode(s string, i interface{}) error {
 		}
 	}
 	//i = interfaceSlice.Interface()
-	fmt.Println(i, interfaceSlice)
+	//fmt.Println(i, interfaceSlice)
 	interfacePtrValue.Elem().Set(interfaceSlice)
 	return nil
-}
-
-func getStartAndEnd(str string) (int, int) {
-	var start, end int
-	str = strings.TrimSpace(str)
-	if len(str) == 3 {
-		start, _ = strconv.Atoi(str[0:1])
-		end, _ = strconv.Atoi(str[2:3])
-	} else {
-		//split the string by : and pull the last string and
-	}
-	return start, end
-}
-
-func GetStringBetween(s string, prefix string, suffix string) []string {
-	fmt.Println(strings.Index(s, prefix), strings.Index(s, suffix))
-	i := strings.Index(s, prefix)
-	e := strings.Index(s, suffix)
-	fmt.Println(s[i+1 : e])
-	arr := strings.Split(s[i+1:e], "\n")
-	fmt.Println("line count: ", len(arr))
-	var ar []string
-	for _, s := range arr {
-		if strings.TrimSpace(s) != "" {
-			ar = append(ar, s)
-		}
-	}
-	fmt.Println("line count: ", len(ar))
-	return ar
 }
 
 // An InvalidUnmarshalError describes an invalid argument passed to Unmarshal.
@@ -95,14 +66,14 @@ func getLoc(sf reflect.StructField) (int, int, error) {
 	arr := strings.Split(sf.Tag.Get("loc"), ",")
 	if len(arr) == 2 {
 		if x, err = strconv.Atoi(arr[0]); err != nil {
-			return nil, nil, err
+			return 0, 0, err
 		}
 		if y, err = strconv.Atoi(arr[1]); err != nil {
-			return nil, nil, err
+			return 0, 0, err
 		}
 		return x, y, nil
 	} else {
-		str := "location (Tag) format for " + sf.Name + ", tag:" + sf.Tag + " is wrong."
+		str := fmt.Sprint("location (Tag) format for ", sf.Name, ", tag:", sf.Tag, " is wrong.")
 		return 0, 0, errors.New(str)
 	}
 }
@@ -133,6 +104,5 @@ func DecodeFile(filePath string, i interface{}) {
 		panic(err)
 	}
 	Decode(string(bs), i)
-	//json.Unmarshal()
-	//ioutil.ReadAll(strings.NewReader(string(bs)))
+
 }
