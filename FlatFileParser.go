@@ -29,9 +29,12 @@ func Decode(s string, i interface{}) error {
 				//ft := t.Field(i)
 				x, y, err := getLoc(t.Field(i))
 				if err != nil {
-					panic(err)
+					return err
 				}
-				setValue(&fv, a[x:y])
+				err = setValue(&fv, a[x:y])
+				if err != nil{
+					return err
+				}
 			}
 			//fmt.Println(a)
 			interfaceSlice = reflect.Append(interfaceSlice, v)
@@ -78,10 +81,13 @@ func getLoc(sf reflect.StructField) (int, int, error) {
 	}
 }
 
-func setValue(t *reflect.Value, value string) {
+func setValue(t *reflect.Value, value string) error{
 	switch t.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		i, _ := strconv.Atoi(value)
+		i, err := strconv.Atoi(value)
+		if err != nil{
+			return errors.New(fmt.Sprint("Error when converting value ", value, " Err: ", err ))
+		}
 		t.SetInt(int64(i))
 	case reflect.String:
 		t.SetString(value)
@@ -96,13 +102,14 @@ func setValue(t *reflect.Value, value string) {
 		b, _ := strconv.ParseBool(value)
 		t.SetBool(b)
 	}
+	return nil
 }
 
-func DecodeFile(filePath string, i interface{}) {
+func DecodeFile(filePath string, i interface{}) error {
 	bs, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		panic(err)
 	}
-	Decode(string(bs), i)
+	return Decode(string(bs), i)
 
 }

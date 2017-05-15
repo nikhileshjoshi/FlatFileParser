@@ -18,11 +18,15 @@ func main() {
 	}
 
 	var p, r []Pair
-	flatFileParser.Decode(string(bs), &p)
+	if err := flatFileParser.Decode(string(bs), &p); err != nil {
+		panic(err)
+	}
 	//Decode(string(bs), &p)
 	//p := i.([]Pair)
-	fmt.Println("p:", p[1])
+	fmt.Println("p:", p[1], p)
 
-	flatFileParser.DecodeFile("read.txt", &r)
+	if err := flatFileParser.DecodeFile("read.txt", &r); err != nil {
+		panic(err)
+	}
 	fmt.Println("r:", r[0])
 }
