@@ -2,7 +2,7 @@
 
 A library to parse fixed length flat files in Go. Specify the start and end location of the field in the "loc" struct tag.
 
-In the IT industry were often face a challenge when we integrate our applications with Mainframe and AS400 systems the predominantly use fixed length flat files to read and write data. Most of the code used to read those flat files have very poor readability, and requires writing a lot of boiler plate code that is difficult to maintain.
+In the IT industry were often face a challenge when we integrate our applications with Mainframe and AS400 systems that predominantly use fixed length flat files to read and write data. Most of the code used to read those flat files have very poor readability, and requires writing a lot of boiler plate code that is difficult to maintain.
 
 Introducing Go Flat File Parser. This library was created to help parse the data in a neat way to read and parse data from a flat file and process it accordingly. This library helps write readable code that your future colleges won't hate to maintain.
 
