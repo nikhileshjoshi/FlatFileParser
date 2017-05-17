@@ -11,6 +11,13 @@ type Pair struct {
 	Name string `loc:"3,6"`
 }
 
+type Config struct {
+	PoNumber    int64   `loc:0,6`
+	StyleNumber string  `loc:6,15`
+	UnitPrice   float64 `loc:15,20`
+	Qty         int     `loc:10,15`
+}
+
 func main() {
 	bs, err := ioutil.ReadFile("read.txt")
 	if err != nil {

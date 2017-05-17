@@ -49,5 +49,5 @@ func main(){
 ```
 ##Todo
 - [ Support multiline pull ]
-- [ Support time parsing ]
+- [ Support time parsing ]  
 - [ Write Flat Files ]

@@ -111,5 +111,4 @@ func DecodeFile(filePath string, i interface{}) error {
 		panic(err)
 	}
 	return Decode(string(bs), i)
-
 }
