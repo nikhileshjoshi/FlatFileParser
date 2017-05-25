@@ -4,18 +4,13 @@ import (
 	"fmt"
 	"github.com/nikhileshjoshi/flatFileParser"
 	"io/ioutil"
+	"time"
 )
 
 type Pair struct {
-	Id   int    `loc:"0,3"`
-	Name string `loc:"3,6"`
-}
-
-type Config struct {
-	PoNumber    int64   `loc:0,6`
-	StyleNumber string  `loc:6,15`
-	UnitPrice   float64 `loc:15,20`
-	Qty         int     `loc:10,15`
+	Id   int       `loc:"0,3"`
+	Name string    `loc:"3,6"`
+	Ti   time.Time `loc:"6,14"`
 }
 
 func main() {

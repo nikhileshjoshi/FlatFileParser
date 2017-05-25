@@ -1,3 +1,26 @@
+/*
+MIT License
+
+Copyright (c) 2017 Nikhilesh Joshi <reachnikhilesh@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 package flatFileParser
 
 import (
@@ -7,6 +30,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func Decode(s string, i interface{}) error {
@@ -101,8 +125,29 @@ func setValue(t *reflect.Value, value string) error{
 		}
 		b, _ := strconv.ParseBool(value)
 		t.SetBool(b)
+	case reflect.Struct:
+		if t.Type().String() == "time.Time" {
+			parseTime(value)
+		}
+
 	}
 	return nil
+}
+
+func parseTime(str string) time.Time{
+	layout := []string{
+		"20060102T150405", "20060102Z150405", "20060102z150405", "20060102t150405",
+			"Mon Jan _2 15:04:05 2006","Mon Jan _2 15:04:05 MST 2006","Mon Jan 02 15:04:05 -0700 2006",
+			"02 Jan 06 15:04 MST","02 Jan 06 15:04 -0700","Monday, 02-Jan-06 15:04:05 MST",
+			"Mon, 02 Jan 2006 15:04:05 MST","Mon, 02 Jan 2006 15:04:05 -0700","2006-01-02T15:04:05Z07:00",
+			"2006-01-02T15:04:05.999999999Z07:00","3:04PM","Jan _2 15:04:05","Jan _2 15:04:05.000","Jan _2 15:04:05.000000",
+			"Jan _2 15:04:05.000000000","01/02/2006","02/Jan/2006:15:04:05 -0700"}
+
+	t, err := time.Parse(layout, str)
+	if err!=nil{
+		panic(err)
+	}
+	return t
 }
 
 func DecodeFile(filePath string, i interface{}) error {
