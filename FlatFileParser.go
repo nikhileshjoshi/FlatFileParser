@@ -31,6 +31,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"github.com/araddon/dateparse"
 )
 
 func Decode(s string, i interface{}) error {
@@ -127,7 +128,7 @@ func setValue(t *reflect.Value, value string) error{
 		t.SetBool(b)
 	case reflect.Struct:
 		if t.Type().String() == "time.Time" {
-			//parseTime(value)
+			parseTime(value)
 		}
 
 	}
@@ -136,21 +137,13 @@ func setValue(t *reflect.Value, value string) error{
 
 func parseTime(str string) time.Time{
 
-	for _, layout := range []string{
-		"20060102T150405", "20060102Z150405", "20060102z150405", "20060102t150405",
-			"Mon Jan _2 15:04:05 2006","Mon Jan _2 15:04:05 MST 2006","Mon Jan 02 15:04:05 -0700 2006",
-			"02 Jan 06 15:04 MST","02 Jan 06 15:04 -0700","Monday, 02-Jan-06 15:04:05 MST",
-			"Mon, 02 Jan 2006 15:04:05 MST","Mon, 02 Jan 2006 15:04:05 -0700","2006-01-02T15:04:05Z07:00",
-			"2006-01-02T15:04:05.999999999Z07:00","3:04PM","Jan _2 15:04:05","Jan _2 15:04:05.000","Jan _2 15:04:05.000000",
-			"Jan _2 15:04:05.000000000","01/02/2006","02/Jan/2006:15:04:05 -0700",}{
-		t, err := time.Parse(layout, str)
-		if err!=nil{
-			panic(err)
-		}
+	t, err := dateparse.ParseAny(str)
+
+	if err!= nil{
+		panic(err)
 	}
 
-
-	return time.Now()
+	return t
 }
 
 func DecodeFile(filePath string, i interface{}) error {
