@@ -23,8 +23,7 @@ func main() {
 	if err := flatFileParser.Decode(string(bs), &p); err != nil {
 		panic(err)
 	}
-	//Decode(string(bs), &p)
-	//p := i.([]Pair)
+
 	fmt.Println("p:", p[0], p)
 
 	if err := flatFileParser.DecodeFile("read.txt", &r); err != nil {

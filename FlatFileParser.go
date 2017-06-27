@@ -43,7 +43,7 @@ func Decode(s string, i interface{}) error {
 	}
 	t := reflect.TypeOf(i).Elem().Elem()
 	interfaceSlice := interfacePtrValue.Elem()
-	//interfaceSlice := reflect.MakeSlice(reflect.SliceOf(t), 0, 0)
+
 	for _, a := range arr {
 		if strings.TrimSpace(a) != "" {
 
@@ -52,7 +52,6 @@ func Decode(s string, i interface{}) error {
 
 			for i := 0; i < t.NumField(); i++ {
 				fv := v.Field(i)
-				//ft := t.Field(i)
 				x, y, err := getLoc(t.Field(i))
 				if err != nil {
 					return err
