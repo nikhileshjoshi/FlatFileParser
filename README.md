@@ -11,39 +11,38 @@ Right now the library is designed to only load data read in a single line, ie. e
 There are lot of use cases where a record spans multiple lines, like in a shipment data flat file where, the lines that start H is the header of the shipment and the lines that start with D is the shipment details record are part of the same shipment.
 
 ```go
+package main
+
 import (
 	"fmt"
 	"github.com/nikhileshjoshi/flatFileParser"
 	"io/ioutil"
+	"time"
 )
 
-//The struct fields should start with a CAPITAL letter so that the fields are exported.
-type PO struct {
-	PoNumber    int64   `loc:0,6`
-	StyleNumber string  `loc:6,15`
-	UnitPrice   float64 `loc:15,20`
-	Qty         int     `loc:10,15`
+type Pair struct {
+	Id   int       `loc:"0,3"`
+	Name string    `loc:"3,6"`
+	Ti   time.Time `loc:"6,14" format:"YYYYMMDD"` //Use MS excel style date formats.
 }
 
-func main(){
-  //Create an empty slice.
-  var pos, strPO []PO
-
-  //Use the DecodeFile to decode the whole file to a struct slice.
-  if err := flatFileParser.DecodeFile("PO_extract.txt", &pos); err != nil {
-		panic(err)
-	}
-	fmt.Println("POS:", pos)
-
-  //Incase you have the flat file data in memory as a string use the Decode function to decode the data to a struct slice.
-  bs, err := ioutil.ReadFile("read.txt")
+func main() {
+	bs, err := ioutil.ReadFile("read.txt")
 	if err != nil {
 		panic(err)
 	}
-  if err := flatFileParser.Decode(string(bs), &pos); err != nil {
+
+	var p, r []Pair
+	if err := flatFileParser.Decode(string(bs), &p); err != nil {
 		panic(err)
 	}
-	fmt.Println("POS:", pos)
+
+	fmt.Println("p:", p)
+
+	if err := flatFileParser.DecodeFile("read.txt", &r); err != nil {
+		panic(err)
+	}
+	fmt.Println("r:", r)
 }
 
 ```
