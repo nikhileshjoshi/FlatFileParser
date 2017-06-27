@@ -134,11 +134,12 @@ func setValue(t *reflect.Value, value string, format string) error{
 	}
 	return nil
 }
-
+//parseTime parses the string to date time based on the format string and returns the data as
+//time.Time
 func parseTime(str string, format string) time.Time{
 
 	t, err := fmtdate.Parse(format, str)
-	fmt.Println("str:", str, "format:", format, "t:", t)
+	//fmt.Println("str:", str, "format:", format, "t:", t)
 
 	if err!= nil{
 		panic(err)
