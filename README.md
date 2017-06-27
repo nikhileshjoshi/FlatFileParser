@@ -1,4 +1,4 @@
-#Flat File Parser
+# Flat File Parser
 
 A library to parse fixed length flat files in Go. Specify the start and end location of the field in the "loc" struct tag.
 
@@ -46,6 +46,6 @@ func main() {
 }
 
 ```
-##Todo
+## Todo
 - [ Support multiline pull ]
 - [ Write Flat Files ]
