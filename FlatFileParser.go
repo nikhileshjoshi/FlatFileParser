@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+
 package flatFileParser
 
 import (
@@ -31,7 +32,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"github.com/araddon/dateparse"
+	"github.com/metakeule/fmtdate"
 )
 
 func Decode(s string, i interface{}) error {
@@ -56,7 +57,7 @@ func Decode(s string, i interface{}) error {
 				if err != nil {
 					return err
 				}
-				err = setValue(&fv, a[x:y])
+				err = setValue(&fv, a[x:y], t.Field(i).Tag.Get("format"))
 				if err != nil{
 					return err
 				}
@@ -106,7 +107,7 @@ func getLoc(sf reflect.StructField) (int, int, error) {
 	}
 }
 
-func setValue(t *reflect.Value, value string) error{
+func setValue(t *reflect.Value, value string, format string) error{
 	switch t.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		i, err := strconv.Atoi(value)
@@ -128,16 +129,17 @@ func setValue(t *reflect.Value, value string) error{
 		t.SetBool(b)
 	case reflect.Struct:
 		if t.Type().String() == "time.Time" {
-			parseTime(value)
+			t.Set(reflect.ValueOf(parseTime(value, format)))
 		}
 
 	}
 	return nil
 }
 
-func parseTime(str string) time.Time{
+func parseTime(str string, format string) time.Time{
 
-	t, err := dateparse.ParseAny(str)
+	t, err := fmtdate.Parse(format, str)
+	fmt.Println("str:", str, "format:", format, "t:", t)
 
 	if err!= nil{
 		panic(err)
