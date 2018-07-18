@@ -32,9 +32,13 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
 	"github.com/metakeule/fmtdate"
 )
 
+/*
+Decode accepts the string that needs to be decoded into the interface.
+*/
 func Decode(s string, i interface{}) error {
 	arr := strings.Split(s, "\n")
 	interfacePtrValue := reflect.ValueOf(i)
@@ -57,7 +61,7 @@ func Decode(s string, i interface{}) error {
 					return err
 				}
 				err = setValue(&fv, a[x:y], t.Field(i).Tag.Get("format"))
-				if err != nil{
+				if err != nil {
 					return err
 				}
 			}
@@ -92,26 +96,25 @@ func getLoc(sf reflect.StructField) (int, int, error) {
 	var x, y int
 	var err error
 	arr := strings.Split(sf.Tag.Get("loc"), ",")
-	if len(arr) == 2 {
-		if x, err = strconv.Atoi(arr[0]); err != nil {
-			return 0, 0, err
-		}
-		if y, err = strconv.Atoi(arr[1]); err != nil {
-			return 0, 0, err
-		}
-		return x, y, nil
-	} else {
+	if len(arr) != 2 {
 		str := fmt.Sprint("location (Tag) format for ", sf.Name, ", tag:", sf.Tag, " is wrong.")
 		return 0, 0, errors.New(str)
 	}
+	if x, err = strconv.Atoi(arr[0]); err != nil {
+		return 0, 0, err
+	}
+	if y, err = strconv.Atoi(arr[1]); err != nil {
+		return 0, 0, err
+	}
+	return x, y, nil
 }
 
-func setValue(t *reflect.Value, value string, format string) error{
+func setValue(t *reflect.Value, value string, format string) error {
 	switch t.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		i, err := strconv.Atoi(value)
-		if err != nil{
-			return errors.New(fmt.Sprint("Error when converting value ", value, " Err: ", err ))
+		if err != nil {
+			return errors.New(fmt.Sprint("Error when converting value ", value, " Err: ", err))
 		}
 		t.SetInt(int64(i))
 	case reflect.String:
@@ -134,20 +137,23 @@ func setValue(t *reflect.Value, value string, format string) error{
 	}
 	return nil
 }
+
 //parseTime parses the string to date time based on the format string and returns the data as
 //time.Time
-func parseTime(str string, format string) time.Time{
+func parseTime(str string, format string) time.Time {
 
 	t, err := fmtdate.Parse(format, str)
 	//fmt.Println("str:", str, "format:", format, "t:", t)
 
-	if err!= nil{
+	if err != nil {
 		panic(err)
 	}
 
 	return t
 }
 
+//DecodeFile parses the given file in filePath into the interface i, returns
+//an error if the decode fails.
 func DecodeFile(filePath string, i interface{}) error {
 	bs, err := ioutil.ReadFile(filePath)
 	if err != nil {
